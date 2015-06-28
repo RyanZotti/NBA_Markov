@@ -16,9 +16,9 @@ con = pymysql.connect(host='localhost',
                       user='root', passwd="", db='NBA')
 mysql = con.cursor(pymysql.cursors.DictCursor)
 
-home = 'San Antonio Spurs'
-away = 'Oklahoma City Thunder'
-game_id = '/boxscores/201503250SAS.html'
+home = 'Orlando Magic'
+away = 'Philadelphia 76ers'
+game_id = '/boxscores/200210290ORL.html'
                
 unioned_state_transitions = get_unioned_state_transitions(mysql,game_id)
 transition_states = {}
@@ -41,8 +41,6 @@ for start_state, end_states in unioned_state_transitions.items():
             away_count = transition_states_away[opp_start_state][opp_end_state]
         count_avg = (home_count + away_count) / 2
         transition_states[start_state][end_state] = count_avg
-
-print('test')
         
 # Calculate bins to be used for state transition selection during random number generation
 transition_state_probabilities = {}

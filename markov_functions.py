@@ -33,7 +33,7 @@ def evaluate_scores(state,scorable_states,scores):
 def get_transition_states(game_id,mysql,team):
     transition_states = {}
     mysql.execute("""select start_state, end_state, frequency 
-        from post_game_markov where game_id = '{game_id}' and 
+        from markov where game_id = '{game_id}' and 
         team = '{team}'""".format(team=team,game_id=game_id))
     for row in mysql.fetchall():
         start_state = row['start_state']
@@ -66,7 +66,7 @@ def get_opponent(team,home,away):
 def get_unioned_state_transitions(mysql,game_id):
     mysql.execute('''
         select start_state, end_state 
-        from post_game_markov 
+        from markov 
         where game_id = "{game_id}" 
         group by start_state, end_state
     '''.format(game_id=game_id))
