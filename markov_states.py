@@ -1,4 +1,3 @@
-
 # The key is text matching state, and the value is generalized state
 states = {
         'offensive rebound':'offensive rebound',
@@ -51,6 +50,8 @@ possession_states = [
        'turnover']
 
 
+skippables = ['enters the game','violation','timeout']
+
 flipped_column_orientations = ['shooting foul']
 
 # For skipping stupid cases where team records OREB after FT
@@ -61,3 +62,4 @@ one_of_several_ft = [
      '{team} misses free throw 1 of 2',
      '{team} misses free throw 1 of 3',
      '{team} misses free throw 2 of 3']
+

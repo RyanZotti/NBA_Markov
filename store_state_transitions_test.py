@@ -1,18 +1,16 @@
 import pymysql
-
 from markov_functions import (
     get_opponent)
 from markov_states import (
     one_of_several_ft,
     states,
-    flipped_column_orientations)
+    flipped_column_orientations,
+    skippables)
 
 con = pymysql.connect(host='localhost', 
                       unix_socket='/tmp/mysql.sock', 
                       user='root', passwd="", db='NBA')
 mysql = con.cursor(pymysql.cursors.DictCursor)
-
-
 
 home = 'San Antonio Spurs'
 away = 'Oklahoma City Thunder'
@@ -23,9 +21,6 @@ mysql.execute("""
     where game_id = '{game_id}' 
     order by play_index asc""".format(game_id=game_id))
 
-
-
-skippables = ['enters the game','violation','timeout']
 transition_states = {}
 previous_state = None
 current_state = None
@@ -80,3 +75,5 @@ for starting_state, future_states in transition_states.items():
         con.commit()
     
 print('Finished.')
+
+
