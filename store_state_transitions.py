@@ -59,7 +59,7 @@ for playoff_year in range(2003,2004):
                 print("New state: "+text+" "+game_id)
                 exit(1)
             # Do stuff once the state has been identified
-            if row_counter > 0:
+            if row_counter > 0 and previous_state is not None:
                 # Logic for skipping stupid cases where team records OREB after a non-final FT
                 if any(state.format(team=team) in previous_state for state in one_of_several_ft) and \
                     "offensive rebound" in current_state:
