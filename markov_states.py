@@ -17,6 +17,7 @@ states = {
         'makes free throw 2 of 3':'makes free throw 2 of 3',
         'makes flagrant free throw 1 of 2':'makes flagrant free throw 1 of 2',
         'misses technical free throw':'misses last FT',
+        'misses flagrant free throw 1 of 1':'misses last FT',
         'misses free throw 1 of 1':'misses last FT',
         'misses free throw 2 of 2':'misses last FT',
         'misses free throw 3 of 3':'misses last FT',

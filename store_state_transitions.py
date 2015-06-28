@@ -27,7 +27,7 @@ def get_matches(mysql,playoff_year):
                 'away':row['away']})
     return matches
 
-for playoff_year in range(2003,2004):
+for playoff_year in range(2003,2016):
     matches = get_matches(mysql,playoff_year)
     for match in matches:
         game_id = match['game_id']
