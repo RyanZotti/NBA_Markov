@@ -8,6 +8,7 @@ states = {
         'misses 3-pt shot':'misses 3-pt shot',
         'makes free throw 1 of 1':'makes last FT',
         'makes technical free throw':'makes last FT',
+        'makes flagrant free throw 1 of 1':'makes last FT',
         'makes free throw 2 of 2':'makes last FT',
         'makes free throw 3 of 3':'makes last FT',
         'makes flagrant free throw 2 of 2':'makes last FT',
@@ -74,5 +75,5 @@ one_of_several_ft = [
      '{team} misses free throw 1 of 3',
      '{team} misses free throw 2 of 3',
      '{team} makes flagrant free throw 1 of 2',
-     '{team} misses flagrant free throw 1 of 2',]
+     '{team} misses flagrant free throw 1 of 2']
 
