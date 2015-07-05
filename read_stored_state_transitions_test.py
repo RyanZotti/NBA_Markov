@@ -16,9 +16,9 @@ con = pymysql.connect(host='localhost',
                       user='root', passwd="", db='NBA')
 mysql = con.cursor(pymysql.cursors.DictCursor)
 
-home = 'Orlando Magic'
-away = 'Philadelphia 76ers'
-game_id = '/boxscores/200210290ORL.html'
+home = 'Phoenix Suns'
+away = 'Utah Jazz'
+game_id = '/boxscores/200611030PHO.html'
                
 unioned_state_transitions = get_unioned_state_transitions(mysql,game_id)
 transition_states = {}
