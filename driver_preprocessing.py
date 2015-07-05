@@ -6,7 +6,7 @@ args = parser.parse_args()
 
 # Steps to run:
 # cd /Users/ryanzotti/Documents/workspace/NBApython/markov
-# python driver_preprocessing.py --playoffyear 2012
+# python driver_preprocessing.py --playoffyear 2015
 
 con = pymysql.connect(
     host='localhost', 

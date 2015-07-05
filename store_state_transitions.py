@@ -1,4 +1,5 @@
 import pymysql
+import argparse
 from markov_functions import (
     get_opponent)
 from markov_states import (
@@ -6,6 +7,13 @@ from markov_states import (
     states,
     flipped_column_orientations,
     skippables)
+parser = argparse.ArgumentParser()
+parser.add_argument('--playoffyear', help='foo help')
+args = parser.parse_args()
+
+# Steps to run:
+# cd /Users/ryanzotti/Documents/workspace/NBApython/markov
+# python store_state_transitions.py --playoffyear 2015
 
 con = pymysql.connect(host='localhost', 
                       unix_socket='/tmp/mysql.sock', 
@@ -27,7 +35,7 @@ def get_matches(mysql,playoff_year):
                 'away':row['away']})
     return matches
 
-for playoff_year in range(2003,2016):
+for playoff_year in range(int(args.playoffyear),int(args.playoffyear)+1):
     matches = get_matches(mysql,playoff_year)
     for match in matches:
         game_id = match['game_id']

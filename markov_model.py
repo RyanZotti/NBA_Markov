@@ -1,5 +1,15 @@
 import pymysql
 import pandas as pd
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--playoffyear', help='foo help')
+args = parser.parse_args()
+
+# Steps to run:
+# cd /Users/ryanzotti/Documents/workspace/NBApython/markov
+# python markov_model.py --playoffyear 2012
+
 from markov_functions import (
     calculate_transition_probabilities,
     change_state,
@@ -37,7 +47,8 @@ def get_matches(mysql,playoff_year):
             'target':row['target']})
     return matches
 
-for playoff_year in range(2003,2004):   
+# for playoff_year in range(2003,2004):    
+for playoff_year in range(int(args.playoffyear),int(args.playoffyear)+1):
     matches = get_matches(mysql,playoff_year)
     for match in matches:
         game_id = match['game_id']
@@ -73,7 +84,7 @@ for playoff_year in range(2003,2004):
         transition_state_probabilities = {}
         for starting_state in transition_states.keys():
             probs = calculate_transition_probabilities(transition_states,starting_state)
-            check_probs_sum_to_one(probs)
+            probs = check_probs_sum_to_one(mysql,probs,starting_state)
             lower_bound = 0
             upper_bound = 0
             for transition_state, prob in probs.items():
@@ -82,13 +93,6 @@ for playoff_year in range(2003,2004):
                 probs[transition_state] = {'lower_bound':lower_bound,'upper_bound':upper_bound,'prob':prob}
             transition_state_probabilities[starting_state] = probs
             
-            # Fixes a rare bug where state is "technical foul' and there is only 1 end state and it 
-            # has 0 probability (Opponent misses last FT)
-            if len(transition_state_probabilities[starting_state].items()) == 1:
-                for ending_state in transition_state_probabilities[starting_state].values():
-                    probs[transition_state] = {'lower_bound':lower_bound,'upper_bound':1,'prob':1}
-                    transition_state_probabilities[starting_state] = probs
-
         # Now it's time to run the simulations
         games = 1000
         possessions = 188
@@ -112,5 +116,5 @@ for playoff_year in range(2003,2004):
             values("{target_gameid}","{playoffyear}","{home}","{away}","{target}","{vegas_pred}","{markov_pred}")""".format(
             target_gameid=game_id,playoffyear=playoff_year,home=home,away=away,target=target,vegas_pred=vegas_pred,markov_pred=markov_pred))
         con.commit()
-        print(game_id+" "+str(markov_pred))
+        print(game_id)
 print('Finished')
