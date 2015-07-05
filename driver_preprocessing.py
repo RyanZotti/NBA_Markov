@@ -1,4 +1,13 @@
 import pymysql
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--playoffyear', help='foo help')
+args = parser.parse_args()
+
+# Steps to run:
+# cd /Users/ryanzotti/Documents/workspace/NBApython/markov
+# python driver_preprocessing.py --playoffyear 2012
+
 con = pymysql.connect(
     host='localhost', 
     unix_socket='/tmp/mysql.sock', 
@@ -45,26 +54,26 @@ def incorporate_new_state_transitions(mysql,team,game_id,state_transitions):
             state_transitions[start_state]={end_state:frequency}
     return state_transitions
             
-def save_state_transitions_to_mysql(con,mysql,team,target_gameid,state_transitions):
+def save_state_transitions_to_mysql(con,mysql,team,target_gameid,playoff_year,state_transitions):
     for start_state, end_states in state_transitions.items():
         for end_state in end_states:
             frequency = state_transitions[start_state][end_state]
             mysql.execute("""
-                insert into markov_consolidated(
-                target_gameid, team, start_state, end_state, frequency) 
-                values("{target_gameid}","{team}","{start_state}","{end_state}",
-                "{frequency}")""".format(target_gameid=target_gameid,team=team,
-                start_state=start_state,end_state=end_state,frequency=frequency))   
+                insert into markov_consolidated(target_gameid, playoffyear, team, start_state, 
+                end_state, frequency) values("{target_gameid}","{playoffyear}","{team}",
+                "{start_state}","{end_state}","{frequency}")""".format(
+                target_gameid=target_gameid,playoffyear=playoff_year,team=team,
+                start_state=start_state,end_state=end_state,frequency=frequency))
             con.commit()
-        
-for playoff_year in range(2003,2016):
+    
+for playoff_year in range(int(args.playoffyear),int(args.playoffyear)+1):
     teams = get_teams(mysql,playoff_year)
     for team in teams:
         state_transitions = {}
         matches = get_matches(mysql,playoff_year,team)
         for match_count, match in enumerate(matches):
             if match_count > 0:
-                save_state_transitions_to_mysql(con,mysql,team,match,state_transitions)
+                save_state_transitions_to_mysql(con,mysql,team,match,playoff_year,state_transitions)
                 print(match)
             state_transitions = incorporate_new_state_transitions(
                 mysql,team,match,state_transitions)

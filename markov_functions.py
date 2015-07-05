@@ -30,6 +30,15 @@ def evaluate_scores(state,scorable_states,scores):
                     scores[team] += points
     return scores
 
+# All probabilities should some to 1 or at least be a lot more than 0
+# or else you'll get stuck in an infinite loop
+def check_probs_sum_to_one(probs):
+    prob_total = 0
+    for prob in probs.values():
+        prob_total += prob
+    if prob_total < 0.1:
+        pass
+
 def get_transition_states(game_id,mysql,team):
     transition_states = {}
     mysql.execute("""select start_state, end_state, frequency 
