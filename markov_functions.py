@@ -30,10 +30,37 @@ def evaluate_scores(state,scorable_states,scores):
                     scores[team] += points
     return scores
 
+# All probabilities should some to 1 or at least be a lot more than 0
+# or else you'll get stuck in an infinite loop
+def check_probs_sum_to_one(mysql,probs,start_state):
+    new_probs = {}
+    prob_total = 0
+    for prob in probs.values():
+        prob_total += prob
+    if prob_total < 0.1:
+        new_prob_total = 0 # For normalization, since new probs might not sum to 1
+        prob = 0
+        for end_state in probs.keys():
+            mysql.execute('''
+                select probability from markov_global_probs where start_state = '{start_state}' and
+                end_state = '{end_state}'
+            '''.format(start_state=start_state,end_state=end_state))
+            for row in mysql.fetchall():
+                prob = row['probability']
+                new_prob_total += prob # For normalization, since new probs might not sum to 1
+            new_probs[end_state]=prob
+        # Normalize the probs, since new probs might not sum to 1
+        for end_state, prob in new_probs.items():
+            new_probs[end_state] = prob / new_prob_total
+    else:
+        new_probs = probs
+    return new_probs
+        
+            
 def get_transition_states(game_id,mysql,team):
     transition_states = {}
     mysql.execute("""select start_state, end_state, frequency 
-        from post_game_markov where game_id = '{game_id}' and 
+        from markov_consolidated where target_gameid = '{game_id}' and 
         team = '{team}'""".format(team=team,game_id=game_id))
     for row in mysql.fetchall():
         start_state = row['start_state']
@@ -66,8 +93,8 @@ def get_opponent(team,home,away):
 def get_unioned_state_transitions(mysql,game_id):
     mysql.execute('''
         select start_state, end_state 
-        from post_game_markov 
-        where game_id = "{game_id}" 
+        from markov_consolidated 
+        where target_gameid = "{game_id}" 
         group by start_state, end_state
     '''.format(game_id=game_id))
     unioned_state_transitions = {}
