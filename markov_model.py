@@ -1,5 +1,5 @@
 import pymysql
-import pandas as pd
+#import pandas as pd
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -8,7 +8,7 @@ args = parser.parse_args()
 
 # Steps to run:
 # cd /Users/ryanzotti/Documents/workspace/NBApython/markov
-# python markov_model.py --playoffyear 2012
+# python markov_model.py --playoffyear 2015
 
 from markov_functions import (
     calculate_transition_probabilities,
@@ -47,8 +47,8 @@ def get_matches(mysql,playoff_year):
             'target':row['target']})
     return matches
 
-# for playoff_year in range(2003,2004):    
-for playoff_year in range(int(args.playoffyear),int(args.playoffyear)+1):
+for playoff_year in range(2003,2004):    
+#for playoff_year in range(int(args.playoffyear),int(args.playoffyear)+1):
     matches = get_matches(mysql,playoff_year)
     for match in matches:
         game_id = match['game_id']
@@ -96,7 +96,8 @@ for playoff_year in range(int(args.playoffyear),int(args.playoffyear)+1):
         # Now it's time to run the simulations
         games = 1000
         possessions = 188
-        simulation_results = pd.DataFrame(columns=['Team','Opponent'])
+        simulation_results = 0
+        #simulation_results = pd.DataFrame(columns=['Team','Opponent'])
         state = 'Opponent turnover' # Randomly picked this hard-coded state
         for game in range(games):
             scores = {'Team':0,'Opponent':0}
@@ -106,12 +107,12 @@ for playoff_year in range(int(args.playoffyear),int(args.playoffyear)+1):
                 while not any(possession_state in state for possession_state in possession_states):
                     state = change_state(state, transition_state_probabilities)
                     scores = evaluate_scores(state,scorable_states,scores)
-            simulation_result = pd.DataFrame(scores,index=[game])
-            simulation_results = simulation_results.append(simulation_result)
-    
-        # Calculate average margin of victory (or loss) and store the result
-        simulation_results['net_score'] = simulation_results['Team'] - simulation_results['Opponent']
-        markov_pred = simulation_results['net_score'].mean()
+            net_score = scores['Team'] - scores['Opponent']
+            # Weighted so that I don't have to use numpy or pandas to get average
+            # Numpy and Pandas don't work with the multiprocessing library on Macs
+            weighted_net_score = (1 / games) * net_score
+            simulation_results += weighted_net_score
+        markov_pred = simulation_results
         mysql.execute("""insert into markov_results(target_gameid, playoffyear, home, away, target, vegas_pred, markov_pred) 
             values("{target_gameid}","{playoffyear}","{home}","{away}","{target}","{vegas_pred}","{markov_pred}")""".format(
             target_gameid=game_id,playoffyear=playoff_year,home=home,away=away,target=target,vegas_pred=vegas_pred,markov_pred=markov_pred))
