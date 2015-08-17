@@ -21,6 +21,10 @@ from markov_states import (
     scorable_states,
     possession_states)
 
+results = []
+def collect_results(result):
+    results.append(result)
+
 def get_matches(mysql,playoff_year):
     matches = []
     mysql.execute('''
@@ -69,7 +73,6 @@ if __name__ == '__main__':
       unix_socket='/tmp/mysql.sock', 
       user='root', passwd="", db='NBA')
     mysql = con.cursor(pymysql.cursors.DictCursor)
-    pool = mp.Pool(processes=100)
     for playoff_year in range(2003,2004):    
     #for playoff_year in range(int(args.playoffyear),int(args.playoffyear)+1):
         matches = get_matches(mysql,playoff_year)
@@ -120,10 +123,17 @@ if __name__ == '__main__':
             games = 1000
             possessions = 188
             simulation_results = []
-            simulation_results = [pool.apply(simulate_game,args=(possessions,transition_state_probabilities,games)) for x in range(games)]
+            pool = mp.Pool(processes=16)
+            for game in range(games):
+                pool.apply_async(simulate_game,args=(possessions,transition_state_probabilities,games),callback=collect_results)
+            pool.close()
+            pool.join()
+            #print(results)
+            #print(simulation_results)
+            #simulation_results2 = simulation_results.get()
             
             markov_pred = 0
-            for simulation_result in simulation_results:
+            for simulation_result in results:
                 #print(str(markov_pred)+" "+str(simulation_result))
                 markov_pred += simulation_result
             mysql.execute("""insert into markov_results(target_gameid, playoffyear, home, away, target, vegas_pred, markov_pred) 
